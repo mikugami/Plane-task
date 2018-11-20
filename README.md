@@ -6,9 +6,12 @@
     $ cd build
     $ cmake ..
     $ make
+    
+### Debugging with fancy triangle
 
-Run 
-    $ ./main 
-for fancy debugging triangle
+    $ ./main
+
+### Main program
+ 
     $ ./main -planescene
-for main program
+

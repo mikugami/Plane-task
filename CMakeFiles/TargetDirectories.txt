@@ -1,0 +1,3 @@
+/home/alex/Git/Plane/CMakeFiles/rebuild_cache.dir
+/home/alex/Git/Plane/CMakeFiles/main.dir
+/home/alex/Git/Plane/CMakeFiles/edit_cache.dir
