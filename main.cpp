@@ -651,11 +651,11 @@ int main(int argc, char** argv) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
             
             ///////////////////////////////////////////////////////////////////
-            /*
+            
             glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
             glClearColor(0.1f, 0.6f, 0.8f, 1.0f); GL_CHECK_ERRORS;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
-            */
+            
             ///////////////////////////////////////////////////////////////////
 
             float4x4 view = camera.GetViewMatrix();
@@ -711,7 +711,7 @@ int main(int argc, char** argv) {
             terrain_program.StopUseShader();
 
             ///////////////////////////////////////////////////////////////////
-            /*
+            
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             
             // blur bright fragments with two-pass Gaussian Blur
@@ -739,7 +739,7 @@ int main(int argc, char** argv) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             
             // now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             bool bloom = false;
             //float exposure = 1.0f;
@@ -759,7 +759,7 @@ int main(int argc, char** argv) {
             renderQuad();
 
             bloom_program.StopUseShader();
-            */
+            
             ///////////////////////////////////////////////////////////////////
 
         } break;
