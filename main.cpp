@@ -445,7 +445,6 @@ static int createTriStrip(int rows, int cols, float size, GLuint &vao)
 
   glBindVertexArray(0);
 
-
   return numIndices;
 }
 
@@ -565,7 +564,7 @@ int main(int argc, char** argv) {
     // configure (floating point) framebuffers
     unsigned int hdrFBO;
     glGenFramebuffers(1, &hdrFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO); GL_CHECK_ERRORS;
     // create 2 floating point color buffers (1 for normal rendering, other for brightness treshold values)
     /*
     unsigned int colorBuffers[2];
@@ -590,19 +589,21 @@ int main(int argc, char** argv) {
     /////
     unsigned int texture_hdr;
     glGenTextures(1, &texture_hdr);
-    glBindTexture(GL_TEXTURE_2D, texture_hdr);
+    glBindTexture(GL_TEXTURE_2D, texture_hdr); GL_CHECK_ERRORS;
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_hdr, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+    /*
     unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glGenRenderbuffers(1, &rbo); GL_CHECK_ERRORS;
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo); GL_CHECK_ERRORS;
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-    ////////
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); GL_CHECK_ERRORS;
+    */
+    //////
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); GL_CHECK_ERRORS;
+
     /*
     // ping-pong-framebuffer for blurring
     unsigned int pingpongFBO[2];
@@ -672,7 +673,7 @@ int main(int argc, char** argv) {
             
             ///////////////////////////////////////////////////////////////////
             
-            glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+            glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO); GL_CHECK_ERRORS;
             glClearColor(0.1f, 0.6f, 0.8f, 1.0f); GL_CHECK_ERRORS;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
             
@@ -786,9 +787,38 @@ int main(int argc, char** argv) {
 
         } break;
         case DEBUG_TRIANGLE: {
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GL_CHECK_ERRORS;
+            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); GL_CHECK_ERRORS;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
+            
+            glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO); GL_CHECK_ERRORS;
+            glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+            glClearColor(1.0f, 0.0f, 0.0f, 1.0f); GL_CHECK_ERRORS;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
+            
             DrawSimpleTriangle(debug_program, camera, WIDTH, HEIGHT);
+            
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+
+            bool bloom = false;
+            
+            bloom_program.StartUseShader();
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture_hdr);
+            //glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+            //glActiveTexture(GL_TEXTURE1);
+            //glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+
+            //bloom_program.SetUniform("exposure", exposure); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("scene", 0); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloomBlur", 1); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloom", bloom); GL_CHECK_ERRORS;
+
+            renderQuad();
+
+            bloom_program.StopUseShader();
+            
         } break;
         };
 
