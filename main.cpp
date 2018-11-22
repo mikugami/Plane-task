@@ -542,6 +542,13 @@ int main(int argc, char** argv) {
 
     ///////////////////////////////////////////////////////////////////
 
+    std::unordered_map<GLenum, std::string> cloud_shaders;
+    shaders[GL_VERTEX_SHADER] = "shaders/cloud_vertex.glsl";
+    shaders[GL_FRAGMENT_SHADER] = "shaders/cloud_fragment.glsl";
+    ShaderProgram cloud_program(shaders); GL_CHECK_ERRORS;
+
+    ///////////////////////////////////////////////////////////////////
+
     std::unordered_map<GLenum, std::string> skybox_Shader;
     skybox_Shader[GL_VERTEX_SHADER] = "shaders/skybox_vertex.glsl";
     skybox_Shader[GL_FRAGMENT_SHADER] = "shaders/skybox_fragment.glsl";
@@ -612,6 +619,10 @@ int main(int argc, char** argv) {
     map<uint32_t, Material> materials;
 
     ImportSceneObjectFromFile("assets/plane.xml", scene, materials);
+
+    //Создаем mesh для облаков
+    //std::unique_ptr<CloudMesh> cloud_mesh = CreateCloudMesh();
+    static std::unique_ptr<CloudMesh> cloud_mesh(CreateCloudMesh());
 
     //Загружаем изображения для skybox
     vector<std::string> faces
@@ -709,6 +720,8 @@ int main(int argc, char** argv) {
             glDrawElements(GL_TRIANGLE_STRIP, triStripIndices, GL_UNSIGNED_INT, 0);
 
             terrain_program.StopUseShader();
+
+            DrawClouds(cloud_program, camera, cloud_mesh, WIDTH, HEIGHT, deltaTime);
 
             ///////////////////////////////////////////////////////////////////
             /*

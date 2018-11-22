@@ -13,11 +13,14 @@ set(SOURCE_FILES
         ShaderProgram.cpp
         mesh.h
         mesh.cpp
+        cloud_mesh.h
+        cloud_mesh.cpp
         drawcall.cpp
         drawcall.h
         ImportSceneObject.cpp
         ImportSceneObject.h
         stb_image.h
+        PerlinNoise.hpp
         dependencies/include/Hydra/HydraVSGFExport.cpp
         dependencies/include/Hydra/HydraVSGFExport.h
         dependencies/include/TinyXML2/tinyxml2.cpp

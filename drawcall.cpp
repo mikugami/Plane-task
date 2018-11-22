@@ -15,6 +15,27 @@ void DrawSimpleTriangle(ShaderProgram &debug_program,
     debug_program.StopUseShader();
 }
 
+void DrawClouds(ShaderProgram &program,
+        Camera &camera,
+        std::unique_ptr<CloudMesh> &mesh,
+        uint32_t width,
+        uint32_t height,
+        float deltaTime)
+{
+    float4x4 view = camera.GetViewMatrix();
+    float4x4 projection = projectionMatrixTransposed(camera.zoom, float(width) / float(height), 0.1f, 1000.0f);
+
+    program.StartUseShader();
+
+    program.SetUniform("view", view);
+    program.SetUniform("projection", projection);
+
+    mesh->UpdateClouds(deltaTime);
+    mesh->DrawInstanced();
+
+    program.StopUseShader();
+}
+
 void DrawMesh(ShaderProgram &program,
         Camera &camera,
         std::unique_ptr<Mesh> &mesh,
