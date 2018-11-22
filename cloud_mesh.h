@@ -47,7 +47,7 @@ CloudMesh* CreateCloudMesh();
 static int InitClouds();
 
 const int MAX_CLOUDCUBES = 400;
-const int MAX_CLOUDS = 50;
+const int MAX_CLOUDS = 150;
 
 typedef struct Cloud {
     int cloudcube_num;

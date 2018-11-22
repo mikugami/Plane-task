@@ -24,15 +24,22 @@ void DrawClouds(ShaderProgram &program,
 {
     float4x4 view = camera.GetViewMatrix();
     float4x4 projection = projectionMatrixTransposed(camera.zoom, float(width) / float(height), 0.1f, 1000.0f);
+    
+    mesh->UpdateClouds(deltaTime);
 
     program.StartUseShader();
+
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     program.SetUniform("view", view);
     program.SetUniform("projection", projection);
 
-    mesh->UpdateClouds(deltaTime);
     mesh->DrawInstanced();
 
+    glDisable(GL_BLEND);
+    
     program.StopUseShader();
 }
 
@@ -44,7 +51,7 @@ void DrawMesh(ShaderProgram &program,
         float deltaTime)
 {
     if (mesh->GetName() == "Aircraft_propeller") {
-        mesh->model = mul(rotate_X_4x4(deltaTime), mesh->model);
+        mesh->model = mul(rotate_X_4x4(deltaTime * 25.0), mesh->model);
     }
     //offset = mul(rotate_Y_4x4(deltaTime * 10.0), mesh->model);
 
