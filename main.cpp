@@ -552,10 +552,10 @@ int main(int argc, char** argv) {
 
     ///////////////////////////////////////////////////////////////////
 
-    std::unordered_map<GLenum, std::string> skybox_Shader;
-    skybox_Shader[GL_VERTEX_SHADER] = "shaders/skybox_vertex.glsl";
-    skybox_Shader[GL_FRAGMENT_SHADER] = "shaders/skybox_fragment.glsl";
-    ShaderProgram skyboxShader(skybox_Shader); GL_CHECK_ERRORS;
+    std::unordered_map<GLenum, std::string> skybox_shaders;
+    skybox_shaders[GL_VERTEX_SHADER] = "shaders/skybox_vertex.glsl";
+    skybox_shaders[GL_FRAGMENT_SHADER] = "shaders/skybox_fragment.glsl";
+    ShaderProgram skybox_program(skybox_shaders); GL_CHECK_ERRORS;
 
     ///////////////////////////////////////////////////////////////////
     
