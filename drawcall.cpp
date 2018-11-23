@@ -51,7 +51,7 @@ void DrawMesh(ShaderProgram &program,
     program.SetUniform("view", view);
     program.SetUniform("projection", projection);
 
-    program.SetUniform("color_texture", 0);
+    program.SetUniform("color_texture", 2);
     program.SetUniform("color_light", float3(1.0f, 1.0f, 1.0f));
     program.SetUniform("light_pos", float3(50.0f, 50.0f, 0.0f));
     program.SetUniform("view_pos", camera.pos);

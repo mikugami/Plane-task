@@ -190,14 +190,14 @@ void ShaderProgram::StopUseShader() const
 
 void ShaderProgram::SetUniform(const std::string &location, const float4x4 &value) const
 {
-  GLint uniformLocation = glGetUniformLocation(shaderProgram, location.c_str()); GL_CHECK_ERRORS;
+  GLint uniformLocation = glGetUniformLocation(shaderProgram, location.c_str()); //GL_CHECK_ERRORS;
   if (uniformLocation == -1)
   {
     std::cerr << "Uniform  " << location << " not found" << std::endl;
     return;
   }
 
-  glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, value.L()); GL_CHECK_ERRORS;
+  glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, value.L()); //GL_CHECK_ERRORS;
 }
 
 void ShaderProgram::SetUniform(const std::string &location, int value) const
