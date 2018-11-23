@@ -279,7 +279,7 @@ void HydraGeomData::read(const std::string& a_fileName)
 
 void HydraGeomData::read(const std::wstring& a_fileName)
 {
-
+/*
 #if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
   std::wstring s1(a_fileName);
   std::string  s2(s1.begin(), s1.end());
@@ -287,7 +287,12 @@ void HydraGeomData::read(const std::wstring& a_fileName)
 #elif defined WIN32
   std::ifstream fin(a_fileName.c_str(), std::ios::binary);
 #endif
+*/
 
+  std::wstring s1(a_fileName);
+  std::string  s2(s1.begin(), s1.end());
+  std::ifstream fin(s2.c_str(), std::ios::binary);
+  
   if (!fin.is_open())
     return;
 
