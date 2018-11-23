@@ -122,7 +122,6 @@ void doCameraMovement(Camera &camera, GLfloat deltaTime)
 
 ///////////////////////////////////////////////////////////////////
 
-// renderQuad() renders a 1x1 XY quad in NDC
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
 void renderQuad()
@@ -514,7 +513,7 @@ int main(int argc, char** argv) {
 	//регистрируем коллбеки для обработки сообщений от пользователя - клавиатура, мышь..
 	glfwSetKeyCallback        (window, OnKeyboardPressed);  
 	glfwSetCursorPosCallback  (window, OnMouseMove); 
-    glfwSetMouseButtonCallback(window, OnMouseButtonClicked);
+  glfwSetMouseButtonCallback(window, OnMouseButtonClicked);
 	glfwSetScrollCallback     (window, OnMouseScroll);
 	glfwSetInputMode          (window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
 
@@ -545,10 +544,10 @@ int main(int argc, char** argv) {
 
     ///////////////////////////////////////////////////////////////////
 
-    std::unordered_map<GLenum, std::string> skybox_Shader;
-    skybox_Shader[GL_VERTEX_SHADER] = "shaders/skybox_vertex.glsl";
-    skybox_Shader[GL_FRAGMENT_SHADER] = "shaders/skybox_fragment.glsl";
-    ShaderProgram skyboxShader(skybox_Shader); //GL_CHECK_ERRORS;
+    std::unordered_map<GLenum, std::string> skybox_shaders;
+    skybox_shaders[GL_VERTEX_SHADER] = "shaders/skybox_vertex.glsl";
+    skybox_shaders[GL_FRAGMENT_SHADER] = "shaders/skybox_fragment.glsl";
+    ShaderProgram skybox_program(skybox_shaders); //GL_CHECK_ERRORS;
 
     ///////////////////////////////////////////////////////////////////
     
@@ -556,12 +555,12 @@ int main(int argc, char** argv) {
     blur_shaders[GL_VERTEX_SHADER] = "shaders/blur_vertex.glsl";
     blur_shaders[GL_FRAGMENT_SHADER] = "shaders/blur_fragment.glsl";
     ShaderProgram blur_program(blur_shaders); //GL_CHECK_ERRORS;
-                                //blur_shaders
+              
     std::unordered_map<GLenum, std::string> bloom_shaders;
     bloom_shaders[GL_VERTEX_SHADER] = "shaders/bloom_vertex.glsl";
     bloom_shaders[GL_FRAGMENT_SHADER] = "shaders/bloom_fragment.glsl";
     ShaderProgram bloom_program(bloom_shaders); //GL_CHECK_ERRORS;
-                                  //bloom_shaders
+                    
     // configure (floating point) framebuffers
     unsigned int hdrFBO;
     glGenFramebuffers(1, &hdrFBO);
@@ -591,8 +590,8 @@ int main(int argc, char** argv) {
     unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, attachments);
     
+    //////
     /*
-    /////
     unsigned int texture_hdr;
     glGenTextures(1, &texture_hdr);
     glBindTexture(GL_TEXTURE_2D, texture_hdr); //GL_CHECK_ERRORS;
@@ -608,9 +607,9 @@ int main(int argc, char** argv) {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); //GL_CHECK_ERRORS;
     */
     //////
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0); //GL_CHECK_ERRORS;
 
-    
     // ping-pong-framebuffer for blurring
     unsigned int pingpongFBO[2];
     unsigned int pingpongColorbuffers[2];
@@ -658,7 +657,7 @@ int main(int argc, char** argv) {
 
     //glViewport(0, 0, WIDTH, HEIGHT);  //GL_CHECK_ERRORS;
     glEnable(GL_DEPTH_TEST);  //GL_CHECK_ERRORS;
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//цикл обработки сообщений и отрисовки сцены каждый кадр
 	while (!glfwWindowShouldClose(window))
@@ -683,17 +682,18 @@ int main(int argc, char** argv) {
             glClearColor(0.1f, 0.6f, 0.8f, 1.0f); //GL_CHECK_ERRORS;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //GL_CHECK_ERRORS;
             //glEnable(GL_DEPTH_TEST);  //GL_CHECK_ERRORS;
+            
             ///////////////////////////////////////////////////////////////////
 
             float4x4 view = camera.GetViewMatrix();
             float4x4 projection = projectionMatrixTransposed(camera.zoom, float(WIDTH) / float(HEIGHT), 0.1f, 1000.0f);
 
-            skyboxShader.StartUseShader();
+            skybox_program.StartUseShader();
             glDepthMask(GL_FALSE);
 
-            skyboxShader.SetUniform("view", view);
-            skyboxShader.SetUniform("projection", projection);
-            skyboxShader.SetUniform("skybox",0);
+            skybox_program.SetUniform("view", view);
+            skybox_program.SetUniform("projection", projection);
+            skybox_program.SetUniform("skybox",0);
 
             glBindVertexArray(skyboxVAO);
             glActiveTexture(GL_TEXTURE0);
@@ -701,7 +701,7 @@ int main(int argc, char** argv) {
             glDrawArrays(GL_TRIANGLES, 0, 36);
 
             glDepthMask(GL_TRUE);
-            skyboxShader.StopUseShader();
+            skybox_program.StopUseShader();
             
             for (auto &mesh : scene) {
                 program.StartUseShader(); //GL_CHECK_ERRORS;
@@ -745,16 +745,16 @@ int main(int argc, char** argv) {
             bool horizontal = true, first_iteration = true;
             unsigned int amount = 10;
 
-
+            
             blur_program.StartUseShader();
 
-            blur_program.SetUniform("image", 0); //GL_CHECK_ERRORS;
+            blur_program.SetUniform("image", 7); //GL_CHECK_ERRORS;
 
             for (unsigned int i = 0; i < amount; i++) {
                 glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
                 blur_program.SetUniform("horizontal", horizontal);
                 // bind texture of other framebuffer (or scene if first iteration)
-                glActiveTexture(GL_TEXTURE0);
+                glActiveTexture(GL_TEXTURE7);
                 glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongColorbuffers[!horizontal]);
                 renderQuad();
                 horizontal = !horizontal;
@@ -768,10 +768,10 @@ int main(int argc, char** argv) {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             
             // now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             bool bloom = true;
-            float exposure = 1.0f;
+            //float exposure = 1.0f;
 
             bloom_program.StartUseShader();
 
@@ -781,11 +781,10 @@ int main(int argc, char** argv) {
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
 
-            bloom_program.SetUniform("bloom", bloom); ////GL_CHECK_ERRORS;
-            bloom_program.SetUniform("exposure", exposure); ////GL_CHECK_ERRORS;
-            bloom_program.SetUniform("scene", 0); ////GL_CHECK_ERRORS;
-            bloom_program.SetUniform("bloomBlur", 1); ////GL_CHECK_ERRORS;
-            
+            bloom_program.SetUniform("bloom", bloom); //GL_CHECK_ERRORS;
+            //bloom_program.SetUniform("exposure", exposure); //GL_CHECK_ERRORS;
+            bloom_program.SetUniform("scene", 0); //GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloomBlur", 1); //GL_CHECK_ERRORS;
 
             renderQuad();
 
@@ -795,7 +794,7 @@ int main(int argc, char** argv) {
 
         } break;
         case DEBUG_TRIANGLE: {
-          /*
+          
             glClearColor(0.0f, 0.0f, 1.0f, 1.0f); //GL_CHECK_ERRORS;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //GL_CHECK_ERRORS;
             
@@ -814,7 +813,7 @@ int main(int argc, char** argv) {
             bloom_program.StartUseShader();
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture_hdr);
+            glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
             //glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
             //glActiveTexture(GL_TEXTURE1);
             //glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
@@ -827,7 +826,7 @@ int main(int argc, char** argv) {
             renderQuad();
 
             bloom_program.StopUseShader();
-            */
+            
             
         } break;
         };
