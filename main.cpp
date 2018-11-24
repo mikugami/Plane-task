@@ -121,16 +121,13 @@ void doCameraMovement(Camera &camera, GLfloat deltaTime)
     camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-///////////////////////////////////////////////////////////////////
-
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
 void renderQuad()
 {
     if (quadVAO == 0)
     {
-        float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-          // positions   // texCoords
+        float quadVertices[] = {
           -1.0f,  1.0f,  0.0f, 1.0f,
           -1.0f, -1.0f,  0.0f, 0.0f,
            1.0f, -1.0f,  1.0f, 0.0f,
@@ -139,25 +136,28 @@ void renderQuad()
            1.0f, -1.0f,  1.0f, 0.0f,
            1.0f,  1.0f,  1.0f, 1.0f
         };
-        // setup plane VAO
+
         glGenVertexArrays(1, &quadVAO);
         glGenBuffers(1, &quadVBO);
+
         glBindVertexArray(quadVAO);
+
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     }
+
     glBindVertexArray(quadVAO);
+
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
+
     glBindVertexArray(0);
 }
-
-///////////////////////////////////////////////////////////////////
-
-///////////////////for cubemaps begin/////////////////////
 
 unsigned int loadCubemap(vector<std::string> faces)
 {
@@ -236,20 +236,17 @@ void createSkyboxVAO(GLuint &skyboxVAO)
          1.0f, -1.0f,  1.0f
     };
 
-    // skybox VAO
     GLuint skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
     glBindVertexArray(skyboxVAO);
     glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); //GL_CHECK_ERRORS;
-    glEnableVertexAttribArray(0); //GL_CHECK_ERRORS;
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
+    glEnableVertexAttribArray(0); GL_CHECK_ERRORS;
 }
 
-///////////////////for cubemaps end/////////////////////
-
-/**
+/*
 \brief создать triangle strip плоскость и загрузить её в шейдерную программу
 \param rows - число строк
 \param cols - число столбцов
@@ -357,8 +354,6 @@ static int createTriStrip(int rows, int cols, float size, GLuint &vao)
     }
   }
 
-
-  ///////////////////////
   //расчет нормалей
   for (int i = 0; i < faces.size(); ++i)
   {
@@ -399,47 +394,39 @@ static int createTriStrip(int rows, int cols, float size, GLuint &vao)
 
   GLuint vboVertices, vboIndices, vboNormals, vboTexCoords;
 
-  /* Мусор для Instance массивов (не нужно раскомменчивать)
-  GLuint vboInstance;
-  glGenBuffers(1, &vboInstance);
-  glBindBuffer(GL_ARRAY_BUFFER, vboInstance);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 15, &translations[0], GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  */
-
   glGenVertexArrays(1, &vao);
   glGenBuffers(1, &vboVertices);
   glGenBuffers(1, &vboIndices);
   glGenBuffers(1, &vboNormals);
   glGenBuffers(1, &vboTexCoords);
 
-  glBindVertexArray(vao); //GL_CHECK_ERRORS;
+  glBindVertexArray(vao); GL_CHECK_ERRORS;
   {
 
     //передаем в шейдерную программу атрибут координат вершин
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertices); //GL_CHECK_ERRORS;
-    glBufferData(GL_ARRAY_BUFFER, vertices_vec.size() * sizeof(GL_FLOAT), &vertices_vec[0], GL_STATIC_DRAW); //GL_CHECK_ERRORS;
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); //GL_CHECK_ERRORS;
-    glEnableVertexAttribArray(0); //GL_CHECK_ERRORS;
+    glBindBuffer(GL_ARRAY_BUFFER, vboVertices); GL_CHECK_ERRORS;
+    glBufferData(GL_ARRAY_BUFFER, vertices_vec.size() * sizeof(GL_FLOAT), &vertices_vec[0], GL_STATIC_DRAW); GL_CHECK_ERRORS;
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
+    glEnableVertexAttribArray(0); GL_CHECK_ERRORS;
 
     //передаем в шейдерную программу атрибут нормалей
-    glBindBuffer(GL_ARRAY_BUFFER, vboNormals); //GL_CHECK_ERRORS;
-    glBufferData(GL_ARRAY_BUFFER, normals_vec.size() * sizeof(GL_FLOAT), &normals_vec[0], GL_STATIC_DRAW); //GL_CHECK_ERRORS;
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); //GL_CHECK_ERRORS;
-    glEnableVertexAttribArray(1); //GL_CHECK_ERRORS;
+    glBindBuffer(GL_ARRAY_BUFFER, vboNormals); GL_CHECK_ERRORS;
+    glBufferData(GL_ARRAY_BUFFER, normals_vec.size() * sizeof(GL_FLOAT), &normals_vec[0], GL_STATIC_DRAW); GL_CHECK_ERRORS;
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
+    glEnableVertexAttribArray(1); GL_CHECK_ERRORS;
 
     //передаем в шейдерную программу атрибут текстурных координат
-    glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords); //GL_CHECK_ERRORS;
-    glBufferData(GL_ARRAY_BUFFER, texcoords_vec.size() * sizeof(GL_FLOAT), &texcoords_vec[0], GL_STATIC_DRAW); //GL_CHECK_ERRORS;
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), (GLvoid*)0); //GL_CHECK_ERRORS;
-    glEnableVertexAttribArray(2); //GL_CHECK_ERRORS;
+    glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords); GL_CHECK_ERRORS;
+    glBufferData(GL_ARRAY_BUFFER, texcoords_vec.size() * sizeof(GL_FLOAT), &texcoords_vec[0], GL_STATIC_DRAW); GL_CHECK_ERRORS;
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
+    glEnableVertexAttribArray(2); GL_CHECK_ERRORS;
 
     //передаем в шейдерную программу индексы
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices); //GL_CHECK_ERRORS;
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_vec.size() * sizeof(GLuint), &indices_vec[0], GL_STATIC_DRAW); //GL_CHECK_ERRORS;
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices); GL_CHECK_ERRORS;
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_vec.size() * sizeof(GLuint), &indices_vec[0], GL_STATIC_DRAW); GL_CHECK_ERRORS;
 
-    glEnable(GL_PRIMITIVE_RESTART); //GL_CHECK_ERRORS;
-    glPrimitiveRestartIndex(primRestart); //GL_CHECK_ERRORS;
+    glEnable(GL_PRIMITIVE_RESTART); GL_CHECK_ERRORS;
+    glPrimitiveRestartIndex(primRestart); GL_CHECK_ERRORS;
   }
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -526,119 +513,91 @@ int main(int argc, char** argv) {
 	while (gl_error != GL_NO_ERROR)
 		gl_error = glGetError();
 
-    //создание шейдерной программы из двух файлов с исходниками шейдеров
-    //используется класс-обертка ShaderProgram
+    // Создание шейдерной программы из двух файлов с исходниками шейдеров
+    // Используется класс-обертка ShaderProgram
     std::unordered_map<GLenum, std::string> shaders;
     shaders[GL_VERTEX_SHADER] = "shaders/vertex.glsl";
     shaders[GL_FRAGMENT_SHADER] = "shaders/fragment.glsl";
-    ShaderProgram program(shaders); //GL_CHECK_ERRORS;
+    ShaderProgram program(shaders); GL_CHECK_ERRORS;
 
     std::unordered_map<GLenum, std::string> terrain_shaders;
     terrain_shaders[GL_VERTEX_SHADER] = "shaders/terrain_vertex.glsl";
     terrain_shaders[GL_FRAGMENT_SHADER] = "shaders/terrain_fragment.glsl";
-    ShaderProgram terrain_program(terrain_shaders); //GL_CHECK_ERRORS;
+    ShaderProgram terrain_program(terrain_shaders); GL_CHECK_ERRORS;
 
     std::unordered_map<GLenum, std::string> debug_shaders;
     debug_shaders[GL_VERTEX_SHADER] = "shaders/vertex_start.glsl";
     debug_shaders[GL_FRAGMENT_SHADER] = "shaders/fragment_start.glsl";
-    ShaderProgram debug_program(debug_shaders); //GL_CHECK_ERRORS;
-
-    ///////////////////////////////////////////////////////////////////
+    ShaderProgram debug_program(debug_shaders); GL_CHECK_ERRORS;
 
     std::unordered_map<GLenum, std::string> cloud_shaders;
     shaders[GL_VERTEX_SHADER] = "shaders/cloud_vertex.glsl";
     shaders[GL_FRAGMENT_SHADER] = "shaders/cloud_fragment.glsl";
     ShaderProgram cloud_program(shaders); GL_CHECK_ERRORS;
 
-    ///////////////////////////////////////////////////////////////////
-
     std::unordered_map<GLenum, std::string> skybox_shaders;
     skybox_shaders[GL_VERTEX_SHADER] = "shaders/skybox_vertex.glsl";
     skybox_shaders[GL_FRAGMENT_SHADER] = "shaders/skybox_fragment.glsl";
     ShaderProgram skybox_program(skybox_shaders); GL_CHECK_ERRORS;
-
-    ///////////////////////////////////////////////////////////////////
     
     std::unordered_map<GLenum, std::string> blur_shaders;
     blur_shaders[GL_VERTEX_SHADER] = "shaders/blur_vertex.glsl";
     blur_shaders[GL_FRAGMENT_SHADER] = "shaders/blur_fragment.glsl";
-    ShaderProgram blur_program(blur_shaders); //GL_CHECK_ERRORS;
+    ShaderProgram blur_program(blur_shaders); GL_CHECK_ERRORS;
               
     std::unordered_map<GLenum, std::string> bloom_shaders;
     bloom_shaders[GL_VERTEX_SHADER] = "shaders/bloom_vertex.glsl";
     bloom_shaders[GL_FRAGMENT_SHADER] = "shaders/bloom_fragment.glsl";
-    ShaderProgram bloom_program(bloom_shaders); //GL_CHECK_ERRORS;
-                    
-    // configure (floating point) framebuffers
-    unsigned int hdrFBO;
-    glGenFramebuffers(1, &hdrFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO); //GL_CHECK_ERRORS;
-    // create 2 floating point color buffers (1 for normal rendering, other for brightness treshold values)
+    ShaderProgram bloom_program(bloom_shaders); GL_CHECK_ERRORS;
     
-    unsigned int colorBuffers[2];
-    glGenTextures(2, colorBuffers);
+    // Создаем кадровый буфер для постобработки
+    unsigned int sceneFBO;
+    glGenFramebuffers(1, &sceneFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO); GL_CHECK_ERRORS;
+    
+    unsigned int sceneColorBuf[2];
+    glGenTextures(2, sceneColorBuf);
     for (unsigned int i = 0; i < 2; i++)
     {
-        glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
+        glBindTexture(GL_TEXTURE_2D, sceneColorBuf[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        // attach texture to framebuffer
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, sceneColorBuf[i], 0);
     }
-    unsigned int rboDepth;
-    glGenRenderbuffers(1, &rboDepth);
-    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIDTH, HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 
-    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+    unsigned int depthFBO;
+    glGenRenderbuffers(1, &depthFBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthFBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, WIDTH, HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthFBO);
+
     unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, attachments);
-    
-    //////
-    /*
-    unsigned int texture_hdr;
-    glGenTextures(1, &texture_hdr);
-    glBindTexture(GL_TEXTURE_2D, texture_hdr); //GL_CHECK_ERRORS;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_hdr, 0);
-    
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo); //GL_CHECK_ERRORS;
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo); //GL_CHECK_ERRORS;
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); //GL_CHECK_ERRORS;
-    */
-    //////
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); //GL_CHECK_ERRORS;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); GL_CHECK_ERRORS;
 
-    // ping-pong-framebuffer for blurring
-    unsigned int pingpongFBO[2];
-    unsigned int pingpongColorbuffers[2];
-    glGenFramebuffers(2, pingpongFBO);
-    glGenTextures(2, pingpongColorbuffers);
+    // Создаем кадровый буфер для блюра
+    unsigned int blurFBO[2];
+    unsigned int blurColorBuf[2];
+    glGenFramebuffers(2, blurFBO);
+    glGenTextures(2, blurColorBuf);
     for (unsigned int i = 0; i < 2; i++)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
-        glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[i]);
+        glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[i]);
+        glBindTexture(GL_TEXTURE_2D, blurColorBuf[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongColorbuffers[i], 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurColorBuf[i], 0);
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);    
-    
-    ///////////////////////////////////////////////////////////////////
 
-    //Создаем и загружаем геометрию поверхности
+    // Создаем и загружаем геометрию поверхности
     GLuint vaoTriStrip;
     int triStripIndices = createTriStrip(300, 300, 2000, vaoTriStrip);
 
@@ -647,11 +606,10 @@ int main(int argc, char** argv) {
 
     ImportSceneObjectFromFile("assets/plane.xml", scene, materials);
 
-    //Создаем mesh для облаков
-    //std::unique_ptr<CloudMesh> cloud_mesh = CreateCloudMesh();
+    // Создаем mesh для облаков
     static std::unique_ptr<CloudMesh> cloud_mesh(CreateCloudMesh());
 
-    //Загружаем изображения для skybox
+    // Загружаем изображения для skybox
     vector<std::string> faces
     {
         "assets/skybox/right.jpg",
@@ -667,14 +625,12 @@ int main(int argc, char** argv) {
     GLuint skyboxVAO;
     createSkyboxVAO(skyboxVAO);
 
-    //glViewport(0, 0, WIDTH, HEIGHT);  //GL_CHECK_ERRORS;
-    glEnable(GL_DEPTH_TEST);  //GL_CHECK_ERRORS;
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST); GL_CHECK_ERRORS;
 
-	//цикл обработки сообщений и отрисовки сцены каждый кадр
+	// Цикл обработки сообщений и отрисовки сцены каждый кадр
 	while (!glfwWindowShouldClose(window))
 	{
-		//считаем сколько времени прошло за кадр
+		// Считаем сколько времени прошло за кадр
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -684,18 +640,12 @@ int main(int argc, char** argv) {
 
         switch (mode) {
         case SCENE: {
+            
+            // Отрисовка сцены
+            glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO); GL_CHECK_ERRORS;
 
-            glClearColor(0.1f, 0.6f, 0.8f, 1.0f); //GL_CHECK_ERRORS;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //GL_CHECK_ERRORS;
-            
-            ///////////////////////////////////////////////////////////////////
-            
-            glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO); //GL_CHECK_ERRORS;
-            glClearColor(0.1f, 0.6f, 0.8f, 1.0f); //GL_CHECK_ERRORS;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //GL_CHECK_ERRORS;
-            //glEnable(GL_DEPTH_TEST);  //GL_CHECK_ERRORS;
-            
-            ///////////////////////////////////////////////////////////////////
+            glClearColor(0.1f, 0.6f, 0.8f, 1.0f); GL_CHECK_ERRORS;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
 
             float4x4 view = camera.GetViewMatrix();
             float4x4 projection = projectionMatrixTransposed(camera.zoom, float(WIDTH) / float(HEIGHT), 0.1f, 1000.0f);
@@ -705,10 +655,10 @@ int main(int argc, char** argv) {
 
             skybox_program.SetUniform("view", view);
             skybox_program.SetUniform("projection", projection);
-            skybox_program.SetUniform("skybox",0);
+            skybox_program.SetUniform("skybox", 5);
 
             glBindVertexArray(skyboxVAO);
-            glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE5);
             glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
             glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -716,16 +666,17 @@ int main(int argc, char** argv) {
             skybox_program.StopUseShader();
             
             for (auto &mesh : scene) {
-                program.StartUseShader(); //GL_CHECK_ERRORS;
+                program.StartUseShader(); GL_CHECK_ERRORS;
                 
                 // Матераил без текстуры содержит -1 в поле tex_id
                 if (materials[mesh->material_id].tex_id != -1) {
-                    glActiveTexture(GL_TEXTURE2); //GL_CHECK_ERRORS;
-                    glBindTexture(GL_TEXTURE_2D, materials[mesh->material_id].tex_id); //GL_CHECK_ERRORS;
+                    glActiveTexture(GL_TEXTURE2); GL_CHECK_ERRORS;
+                    glBindTexture(GL_TEXTURE_2D, materials[mesh->material_id].tex_id); GL_CHECK_ERRORS;
                 }
+
                 DrawMesh(program, camera, mesh, WIDTH, HEIGHT, deltaTime);
 
-                program.StopUseShader(); //GL_CHECK_ERRORS;
+                program.StopUseShader(); GL_CHECK_ERRORS;
             }
 
             float4x4 model = transpose(translate4x4(float3(0, -60, 0)));
@@ -738,11 +689,11 @@ int main(int argc, char** argv) {
             plane_pos.x += deltaTime * speed.x;
             plane_pos.y += deltaTime * speed.y;
 
-            terrain_program.SetUniform("view", view);       //GL_CHECK_ERRORS;
-            terrain_program.SetUniform("projection", projection); //GL_CHECK_ERRORS;
-            terrain_program.SetUniform("model", model); //GL_CHECK_ERRORS;
+            terrain_program.SetUniform("view", view); GL_CHECK_ERRORS;
+            terrain_program.SetUniform("projection", projection); GL_CHECK_ERRORS;
+            terrain_program.SetUniform("model", model); GL_CHECK_ERRORS;
         
-            terrain_program.SetUniform("plane_pos", plane_pos); //GL_CHECK_ERRORS;
+            terrain_program.SetUniform("plane_pos", plane_pos); GL_CHECK_ERRORS;
 
             glBindVertexArray(vaoTriStrip);
             glDrawElements(GL_TRIANGLE_STRIP, triStripIndices, GL_UNSIGNED_INT, 0);
@@ -750,92 +701,81 @@ int main(int argc, char** argv) {
             terrain_program.StopUseShader();
 
             DrawClouds(cloud_program, camera, cloud_mesh, WIDTH, HEIGHT, deltaTime);
-
-            ///////////////////////////////////////////////////////////////////
             
+            // Постобработка
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            
-            // blur bright fragments with two-pass Gaussian Blur
-            bool horizontal = true, first_iteration = true;
-            unsigned int amount = 10;
 
+            glClearColor(0.1f, 0.6f, 0.8f, 1.0f); GL_CHECK_ERRORS;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
+            
+            bool horizontal = true, firstIter = true;
+            unsigned int blurRadius = 10;
             
             blur_program.StartUseShader();
 
-            blur_program.SetUniform("image", 7); //GL_CHECK_ERRORS;
+            blur_program.SetUniform("image", 7); GL_CHECK_ERRORS;
 
-            for (unsigned int i = 0; i < amount; i++) {
-                glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+            for (unsigned int i = 0; i < blurRadius; i++) {
+                glBindFramebuffer(GL_FRAMEBUFFER, blurFBO[horizontal]);
+
                 blur_program.SetUniform("horizontal", horizontal);
-                // bind texture of other framebuffer (or scene if first iteration)
+
                 glActiveTexture(GL_TEXTURE7);
-                glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongColorbuffers[!horizontal]);
+                glBindTexture(GL_TEXTURE_2D, firstIter ? sceneColorBuf[1] : blurColorBuf[!horizontal]);
+
                 renderQuad();
+
                 horizontal = !horizontal;
-                if (first_iteration)
-                    first_iteration = false;
+                if (firstIter)
+                    firstIter = false;
             }
 
             blur_program.StopUseShader();
             
-            
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            
-            // now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
-            //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             bool bloom = true;
-            //float exposure = 1.0f;
 
             bloom_program.StartUseShader();
 
             glActiveTexture(GL_TEXTURE0);
-            //glBindTexture(GL_TEXTURE_2D, texture_hdr);
-            glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+            glBindTexture(GL_TEXTURE_2D, sceneColorBuf[0]);
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+            glBindTexture(GL_TEXTURE_2D, blurColorBuf[!horizontal]);
 
-            bloom_program.SetUniform("bloom", bloom); //GL_CHECK_ERRORS;
-            //bloom_program.SetUniform("exposure", exposure); //GL_CHECK_ERRORS;
-            bloom_program.SetUniform("scene", 0); //GL_CHECK_ERRORS;
-            bloom_program.SetUniform("bloomBlur", 1); //GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloom", bloom); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("scene", 0); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloomBlur", 1); GL_CHECK_ERRORS;
 
             renderQuad();
 
             bloom_program.StopUseShader();
-            
-            ///////////////////////////////////////////////////////////////////
 
         } break;
         case DEBUG_TRIANGLE: {
           
-            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); //GL_CHECK_ERRORS;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //GL_CHECK_ERRORS;
+            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); GL_CHECK_ERRORS;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
             
-            glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO); //GL_CHECK_ERRORS;
-            glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f); //GL_CHECK_ERRORS;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //GL_CHECK_ERRORS;
+            glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO); GL_CHECK_ERRORS;
+
+            glClearColor(1.0f, 0.0f, 0.0f, 1.0f); GL_CHECK_ERRORS;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
             
             DrawSimpleTriangle(debug_program, camera, WIDTH, HEIGHT);
             
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
 
             bool bloom = false;
             
             bloom_program.StartUseShader();
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-            //glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-            //glActiveTexture(GL_TEXTURE1);
-            //glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+            glBindTexture(GL_TEXTURE_2D, sceneColorBuf[0]);
 
-            //bloom_program.SetUniform("exposure", exposure); //GL_CHECK_ERRORS;
-            bloom_program.SetUniform("scene", 0); //GL_CHECK_ERRORS;
-            bloom_program.SetUniform("bloomBlur", 1); //GL_CHECK_ERRORS;
-            bloom_program.SetUniform("bloom", bloom); //GL_CHECK_ERRORS;
+            bloom_program.SetUniform("scene", 0); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloomBlur", 1); GL_CHECK_ERRORS;
+            bloom_program.SetUniform("bloom", bloom); GL_CHECK_ERRORS;
 
             renderQuad();
 
@@ -848,7 +788,7 @@ int main(int argc, char** argv) {
         glfwSwapBuffers(window); 
 	}
 
-	//очищаем vao перед закрытием программы
+	// Очищаем vao перед закрытием программы
 	glDeleteVertexArrays(1, &vaoTriStrip);
 
 	glfwTerminate();

@@ -51,9 +51,8 @@ void DrawMesh(ShaderProgram &program,
         float deltaTime)
 {
     if (mesh->GetName() == "Aircraft_propeller") {
-        mesh->model = mul(rotate_X_4x4(deltaTime * 25.0), mesh->model);
+        mesh->model = mul(rotate_X_4x4(deltaTime * 20.0), mesh->model);
     }
-    //offset = mul(rotate_Y_4x4(deltaTime * 10.0), mesh->model);
 
     const int plane_num = 11;
 
@@ -73,13 +72,15 @@ void DrawMesh(ShaderProgram &program,
     float4x4 projection = projectionMatrixTransposed(camera.zoom, float(width) / float(height), 0.1f, 1000);
 
     program.StartUseShader();
+    
     for(unsigned int i = 0; i < plane_num; i++) {
         program.SetUniform(("models[" + std::to_string(i) + "]").c_str(), models[i]);
     }
     program.SetUniform("view", view);
     program.SetUniform("projection", projection);
 
-    program.SetUniform("color_texture", 2);
+    program.SetUniform("plane_texture", 2);
+    program.SetUniform("skybox_texture", 5);
     program.SetUniform("color_light", float3(1.0f, 1.0f, 1.0f));
     program.SetUniform("light_pos", float3(50.0f, 50.0f, 0.0f));
     program.SetUniform("view_pos", camera.pos);

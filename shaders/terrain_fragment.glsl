@@ -1,17 +1,11 @@
 #version 330 core
 
-///*
-layout (location = 0) out vec4 fragColor;
-layout (location = 1) out vec4 brightColor;
-//*/
-
 in vec3 vFragPosition;
 in vec2 vTexCoords;
 in vec3 vNormal;
 
-/*
-out vec4 color;
-*/
+layout (location = 0) out vec4 fragColor;
+layout (location = 1) out vec4 brightColor;
 
 void main()
 {
@@ -32,13 +26,7 @@ void main()
     fog_factor = clamp( fog_factor, 0.0, 1.0 );
 
     col = mix(fog_color, col, fog_factor);
-    
-    /*
-    color = vec4(col, 1.0f);
-    */
 
-    ///*
     fragColor = vec4(col, 1.0f);
     brightColor = vec4(0.0f);
-    //*/
 }

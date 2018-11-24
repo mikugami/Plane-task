@@ -182,7 +182,7 @@ CloudMesh::CloudMesh(const vector<float> &positions,
         //передаем в шейдерную программу атрибут координат вершин
         glBindBuffer(GL_ARRAY_BUFFER, vboVertices); GL_CHECK_ERRORS;
         glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(GL_FLOAT), positions.data(), GL_STATIC_DRAW); GL_CHECK_ERRORS;
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
         glEnableVertexAttribArray(0); GL_CHECK_ERRORS;
 
         // =============== COLORS ====================
