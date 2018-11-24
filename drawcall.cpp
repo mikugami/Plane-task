@@ -43,6 +43,21 @@ void DrawClouds(ShaderProgram &program,
     program.StopUseShader();
 }
 
+void barelRoll()
+{
+    if (BARREL_ROLLING == false) {
+        BARREL_ROLLING = true;
+
+        for (int i = 0; i < plane_num; ++i) {
+            rotates_lates[i] = (0.1 + (float(rand()) / RAND_MAX) * 0.7);
+            rotates_speed[i] = (1.4 + (float(rand()) / RAND_MAX) * 0.2);
+
+            planes_rotate_angles[i] = -rotates_lates[i];
+            is_rotates_completed[i] = false;
+        }
+    }
+}
+
 void DrawMesh(ShaderProgram &program,
         Camera &camera,
         std::unique_ptr<Mesh> &mesh,
@@ -54,20 +69,45 @@ void DrawMesh(ShaderProgram &program,
         mesh->model = mul(rotate_X_4x4(deltaTime * 20.0), mesh->model);
     }
 
-    const int plane_num = 11;
-
-    //Расчёт смещения самолётов для Instancing
     float4x4 models[plane_num];
-    int j = 0;
-    float offset = 7.0f;
-    for(int i = -5; i <= 5; i += 1) {
-        float3 translation;
-        translation.x = -abs((float)i * offset / 3.0f);
-        translation.z = (float)i * offset;
-        translation.y = abs((float)i * offset / 3.0f);
-        models[j++] = mul(mesh->model, transpose(translate4x4(translation)));
-    }
 
+    float offset = 7.0;
+    for(int i = -plane_num / 2, j = 0; i <= plane_num / 2; i++, j++) {
+        // Расчёт смещения самолётов для Instancing
+        float3 translation = float3(-abs((float)i * offset / 3.0), 
+                                    abs((float)i * offset / 3.0),
+                                    (float)i * offset);
+
+        models[j] = transpose(translate4x4(translation));
+
+        // Расчёт поворота бочки
+        if (!is_rotates_completed[j]) {
+            planes_rotate_angles[j] += deltaTime * rotates_speed[j];
+            if (planes_rotate_angles[j] >= 2 * 3.1415) {
+
+                planes_rotate_angles[j] = 0.0;
+                is_rotates_completed[j] = true;
+
+                bool all_ends = true;
+
+                for (int k = 0; k < plane_num; k++) {
+                    if (!is_rotates_completed[k])
+                        all_ends = false;
+                }
+
+                if (all_ends) {
+                    BARREL_ROLLING = false;
+                }
+            }
+
+            if (planes_rotate_angles[j] > 0.0) {
+                models[j] = mul(rotate_X_4x4(planes_rotate_angles[j]), models[j]);
+            }
+        }
+
+        models[j] = mul(mesh->model, models[j]);
+    }
+    
     float4x4 view = camera.GetViewMatrix();
     float4x4 projection = projectionMatrixTransposed(camera.zoom, float(width) / float(height), 0.1f, 1000);
 

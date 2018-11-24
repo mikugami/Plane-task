@@ -23,3 +23,14 @@ void DrawMesh(ShaderProgram &program,
     uint32_t width,
     uint32_t height,
     float deltaTime);
+
+void barelRoll();
+
+static const int plane_num = 11;
+
+static bool  BARREL_ROLLING = false;
+
+static float planes_rotate_angles[plane_num] = {0.0, };
+static float rotates_speed[plane_num] = {0.0, };
+static float rotates_lates[plane_num] = {0.0, };
+static bool  is_rotates_completed[plane_num] = {false, };

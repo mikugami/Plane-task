@@ -21,6 +21,7 @@ static GLfloat lastX = 400, lastY = 300; //исходное положение �
 static bool firstMouse = true;
 static bool g_captureMouse         = true;  // Мышка захвачена нашим приложением или нет?
 static bool g_capturedMouseJustNow = false;
+static bool bloom = true; // Эффект bloom
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -57,6 +58,13 @@ void OnKeyboardPressed(GLFWwindow* window, int key, int scancode, int action, in
     break;
   case GLFW_KEY_2:
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    break;
+  case GLFW_KEY_B:
+    barelRoll();
+    break;
+  case GLFW_KEY_C:
+    if (action == GLFW_PRESS)
+      bloom = !bloom;
     break;
 	default:
 		if (action == GLFW_PRESS)
@@ -121,9 +129,7 @@ void doCameraMovement(Camera &camera, GLfloat deltaTime)
     camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderQuad()
+void renderQuad(GLuint &quadVAO)
 {
     if (quadVAO == 0)
     {
@@ -136,6 +142,8 @@ void renderQuad()
            1.0f, -1.0f,  1.0f, 0.0f,
            1.0f,  1.0f,  1.0f, 1.0f
         };
+
+        GLuint quadVBO;
 
         glGenVertexArrays(1, &quadVAO);
         glGenBuffers(1, &quadVBO);
@@ -710,7 +718,8 @@ int main(int argc, char** argv) {
             
             bool horizontal = true, firstIter = true;
             unsigned int blurRadius = 10;
-            
+            GLuint quadVAO = 0;
+
             blur_program.StartUseShader();
 
             blur_program.SetUniform("image", 7); GL_CHECK_ERRORS;
@@ -723,7 +732,7 @@ int main(int argc, char** argv) {
                 glActiveTexture(GL_TEXTURE7);
                 glBindTexture(GL_TEXTURE_2D, firstIter ? sceneColorBuf[1] : blurColorBuf[!horizontal]);
 
-                renderQuad();
+                renderQuad(quadVAO);
 
                 horizontal = !horizontal;
                 if (firstIter)
@@ -734,7 +743,7 @@ int main(int argc, char** argv) {
             
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-            bool bloom = true;
+            //bool bloom = true;
 
             bloom_program.StartUseShader();
 
@@ -747,41 +756,16 @@ int main(int argc, char** argv) {
             bloom_program.SetUniform("scene", 0); GL_CHECK_ERRORS;
             bloom_program.SetUniform("bloomBlur", 1); GL_CHECK_ERRORS;
 
-            renderQuad();
+            renderQuad(quadVAO);
 
             bloom_program.StopUseShader();
 
         } break;
         case DEBUG_TRIANGLE: {
-          
-            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); GL_CHECK_ERRORS;
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
-            
-            glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO); GL_CHECK_ERRORS;
-
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f); GL_CHECK_ERRORS;
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GL_CHECK_ERRORS;
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); GL_CHECK_ERRORS;
             
             DrawSimpleTriangle(debug_program, camera, WIDTH, HEIGHT);
-            
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            bool bloom = false;
-            
-            bloom_program.StartUseShader();
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, sceneColorBuf[0]);
-
-            bloom_program.SetUniform("scene", 0); GL_CHECK_ERRORS;
-            bloom_program.SetUniform("bloomBlur", 1); GL_CHECK_ERRORS;
-            bloom_program.SetUniform("bloom", bloom); GL_CHECK_ERRORS;
-
-            renderQuad();
-
-            bloom_program.StopUseShader();
-            
-            
         } break;
         };
 
