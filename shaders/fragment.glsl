@@ -34,24 +34,21 @@ void main()
     vec3 light_result = (ambient + diffuse + specular);
 
     // Отражение в стекле самолета
-    vec4 glass_color = vec4(37.0/255.0, 47.0/255.0, 43.0/255.0, 1.0);
+    vec3 glass_color = vec3(37.0/255.0, 47.0/255.0, 43.0/255.0);
     vec3 plane_color = texture(plane_texture, vTexCoords).xyz;
 
     vec3 result = plane_color * light_result;
 
-    if (plane_color.x <= glass_color.x + 0.01 &&  plane_color.x >= glass_color.x - 0.01 
-            && plane_color.y <= glass_color.y + 0.01 && plane_color.y >= glass_color.y - 0.01
-            && plane_color.z <= glass_color.z + 0.01 && plane_color.z >= glass_color.z - 0.01) {
-        vec3 I = normalize(vFragPos - view_pos);
-        vec3 R = reflect(I, normalize(vNormal));
+    if (sqrt(dot(plane_color - glass_color, plane_color - glass_color)) < 0.015) {
+        vec3 skyboxDir = normalize(vFragPos - view_pos);
+        vec3 skyboxCoords = reflect(skyboxDir, normalize(vNormal));
 
-        vec3 skybox_color = texture(skybox_texture, R).xyz;
+        vec3 skybox_color = texture(skybox_texture, skyboxCoords).xyz;
 
         result = skybox_color * light_result;
     }
 
     // Расчёт карты бликов
-    //float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
     float brightness = dot(result, vec3(0.2526, 0.7452, 0.0822));
     if (brightness > 1.0) {
         brightColor = vec4(result, 1.0);

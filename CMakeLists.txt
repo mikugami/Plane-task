@@ -13,8 +13,10 @@ set(SOURCE_FILES
         ShaderProgram.cpp
         mesh.h
         mesh.cpp
-        cloud_mesh.h
-        cloud_mesh.cpp
+        CloudMesh.h
+        CloudMesh.cpp
+        RainMesh.h
+        RainMesh.cpp
         drawcall.cpp
         drawcall.h
         ImportSceneObject.cpp

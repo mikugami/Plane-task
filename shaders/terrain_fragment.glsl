@@ -19,7 +19,7 @@ void main()
     
     float dist = gl_FragCoord.z / gl_FragCoord.w;
     
-    vec3 fog_color = vec3(0.1f, 0.6f, 0.8f);
+    vec3 fog_color = vec3(0.8f, 0.8f, 0.8f);
 
     float fog_density = 0.003f;
     float fog_factor = 1.0 / exp(dist * fog_density);

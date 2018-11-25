@@ -15,16 +15,15 @@ using LiteMath::mul;
 using std::vector;
 using std::string;
 
-
 class CloudMesh {
 public:
     float4x4 model;
     uint32_t material_id;
 
     CloudMesh(const vector<float> &positions,
-             const vector<uint32_t> &indices,
-             size_t mat_id,
-             string n);
+              const vector<uint32_t> &indices,
+              size_t mat_id,
+              string n);
 
     string GetName();
 
@@ -46,8 +45,8 @@ CloudMesh* CreateCloudMesh();
 
 static int InitClouds();
 
-const int MAX_CLOUDCUBES = 400;
-const int MAX_CLOUDS = 150;
+const int MAX_CLOUDCUBES = 7000;
+const int MAX_CLOUDS = 120;
 
 typedef struct Cloud {
     int cloudcube_num;
@@ -56,5 +55,5 @@ typedef struct Cloud {
 
 static Cloud clouds[MAX_CLOUDS];
 static float4x4 cloudcube_offset[MAX_CLOUDCUBES * MAX_CLOUDS];
-static float4 colors[MAX_CLOUDCUBES * MAX_CLOUDS];
+static float colors[MAX_CLOUDCUBES * MAX_CLOUDS];
 

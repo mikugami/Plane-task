@@ -538,6 +538,11 @@ int main(int argc, char** argv) {
     debug_shaders[GL_FRAGMENT_SHADER] = "shaders/fragment_start.glsl";
     ShaderProgram debug_program(debug_shaders); GL_CHECK_ERRORS;
 
+    std::unordered_map<GLenum, std::string> rain_shaders;
+    rain_shaders[GL_VERTEX_SHADER] = "shaders/rain_vertex.glsl";
+    rain_shaders[GL_FRAGMENT_SHADER] = "shaders/rain_fragment.glsl";
+    ShaderProgram rain_program(rain_shaders); GL_CHECK_ERRORS;
+
     std::unordered_map<GLenum, std::string> cloud_shaders;
     shaders[GL_VERTEX_SHADER] = "shaders/cloud_vertex.glsl";
     shaders[GL_FRAGMENT_SHADER] = "shaders/cloud_fragment.glsl";
@@ -614,8 +619,9 @@ int main(int argc, char** argv) {
 
     ImportSceneObjectFromFile("assets/plane.xml", scene, materials);
 
-    // Создаем mesh для облаков
-    static std::unique_ptr<CloudMesh> cloud_mesh(CreateCloudMesh());
+    // Создаем mesh для облаков и дождя
+    auto cloud_mesh = CreateCloudMesh();
+    auto rain_mesh = CreateRaindropMesh();
 
     // Загружаем изображения для skybox
     vector<std::string> faces
@@ -709,6 +715,7 @@ int main(int argc, char** argv) {
             terrain_program.StopUseShader();
 
             DrawClouds(cloud_program, camera, cloud_mesh, WIDTH, HEIGHT, deltaTime);
+            DrawRain(rain_program, camera, rain_mesh, WIDTH, HEIGHT, deltaTime);
             
             // Постобработка
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -742,8 +749,6 @@ int main(int argc, char** argv) {
             blur_program.StopUseShader();
             
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-            //bool bloom = true;
 
             bloom_program.StartUseShader();
 

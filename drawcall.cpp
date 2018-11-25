@@ -17,7 +17,7 @@ void DrawSimpleTriangle(ShaderProgram &debug_program,
 
 void DrawClouds(ShaderProgram &program,
         Camera &camera,
-        std::unique_ptr<CloudMesh> &mesh,
+        CloudMesh *mesh,
         uint32_t width,
         uint32_t height,
         float deltaTime)
@@ -43,18 +43,27 @@ void DrawClouds(ShaderProgram &program,
     program.StopUseShader();
 }
 
+void DrawRain(ShaderProgram &program,
+    Camera &camera,
+    RainMesh *mesh,
+    uint32_t width,
+    uint32_t height,
+    float deltaTime) {
+
+    program.StartUseShader();
+    mesh->update_particles(deltaTime);
+
+    program.SetUniform("view", camera.GetViewMatrix());
+    program.SetUniform("projection", projectionMatrixTransposed(camera.zoom, float(width) / float(height), 0.1f, 1000.0f));
+
+    mesh->DrawInstanced(MAX_RAINDROPS);
+    program.StopUseShader();
+}
+
 void barelRoll()
 {
-    if (BARREL_ROLLING == false) {
-        BARREL_ROLLING = true;
-
-        for (int i = 0; i < plane_num; ++i) {
-            rotates_lates[i] = (0.1 + (float(rand()) / RAND_MAX) * 0.7);
-            rotates_speed[i] = (1.4 + (float(rand()) / RAND_MAX) * 0.2);
-
-            planes_rotate_angles[i] = -rotates_lates[i];
-            is_rotates_completed[i] = false;
-        }
+    if (barell_rolling == false) {
+        barell_rolling = true;
     }
 }
 
@@ -71,32 +80,43 @@ void DrawMesh(ShaderProgram &program,
 
     float4x4 models[plane_num];
 
+    // Инициализация бочки
+    if (barell_rolling == true && rolling_inited == false) {
+        rolling_inited = true;
+
+        for (int i = 0; i < plane_num; i++) {
+            planes_rotate_speed[i] = 1.3 + (float(rand()) / RAND_MAX) * 0.15;
+            planes_rotate_angles[i] = -(0.7 + (float(rand()) / RAND_MAX) * 0.15) * i;
+
+            is_rotating[i] = true;
+        }
+    }
+
     float offset = 7.0;
     for(int i = -plane_num / 2, j = 0; i <= plane_num / 2; i++, j++) {
         // Расчёт смещения самолётов для Instancing
-        float3 translation = float3(-abs((float)i * offset / 3.0), 
-                                    abs((float)i * offset / 3.0),
-                                    (float)i * offset);
+        float3 translation = float3(-abs((float)i * offset / 2.0), 
+                                    abs((float)i * offset / 7.0),
+                                    (float)i * offset) * 2.0;
 
         models[j] = transpose(translate4x4(translation));
 
-        // Расчёт поворота бочки
-        if (!is_rotates_completed[j]) {
-            planes_rotate_angles[j] += deltaTime * rotates_speed[j];
+        // Расчёт поворота самолёта во время бочки
+        if (is_rotating[j]) {
+            planes_rotate_angles[j] += deltaTime * planes_rotate_speed[j];
+
             if (planes_rotate_angles[j] >= 2 * 3.1415) {
-
                 planes_rotate_angles[j] = 0.0;
-                is_rotates_completed[j] = true;
+                is_rotating[j] = false;
 
-                bool all_ends = true;
-
+                bool all_rotates_ended = true;
                 for (int k = 0; k < plane_num; k++) {
-                    if (!is_rotates_completed[k])
-                        all_ends = false;
+                    if (is_rotating[k])
+                        all_rotates_ended = false;
                 }
-
-                if (all_ends) {
-                    BARREL_ROLLING = false;
+                if (all_rotates_ended) {
+                    barell_rolling = false;
+                    rolling_inited = false;
                 }
             }
 
