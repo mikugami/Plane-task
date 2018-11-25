@@ -44,14 +44,14 @@ void DrawClouds(ShaderProgram &program,
 }
 
 void DrawRain(ShaderProgram &program,
-    Camera &camera,
-    RainMesh *mesh,
-    uint32_t width,
-    uint32_t height,
-    float deltaTime) {
+        Camera &camera,
+        RainMesh *mesh,
+        uint32_t width,
+        uint32_t height,
+        float deltaTime) {
 
     program.StartUseShader();
-    mesh->update_particles(deltaTime);
+    mesh->UpdateRain(deltaTime);
 
     program.SetUniform("view", camera.GetViewMatrix());
     program.SetUniform("projection", projectionMatrixTransposed(camera.zoom, float(width) / float(height), 0.1f, 1000.0f));

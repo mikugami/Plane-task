@@ -6,14 +6,8 @@
 #include <vector>
 #include <string>
 
-using LiteMath::float4x4;
-using LiteMath::float3;
-using LiteMath::float4;
-using LiteMath::rotate_Y_4x4;
-using LiteMath::mul;
-
-using std::vector;
-using std::string;
+using namespace LiteMath;
+using namespace std;
 
 class CloudMesh {
 public:
@@ -43,7 +37,7 @@ protected:
 
 CloudMesh* CreateCloudMesh();
 
-static int InitClouds();
+int InitClouds();
 
 const int MAX_CLOUDCUBES = 7000;
 const int MAX_CLOUDS = 120;

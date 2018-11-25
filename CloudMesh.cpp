@@ -74,7 +74,7 @@ CloudMesh* CreateCloudMesh()
     return new CloudMesh(pos, ind, -1, "Clouds");
 }
 
-static int InitClouds()
+int InitClouds()
 {
     int count = 0;
     for (int k = 0; k < MAX_CLOUDS; ++k) {
@@ -135,7 +135,6 @@ static int InitClouds()
     return count;
 }
 
-
 void CloudMesh::UpdateClouds(float deltaTime)
 {
     int index = 0;
@@ -152,24 +151,6 @@ void CloudMesh::UpdateClouds(float deltaTime)
 
     glBindBuffer(GL_ARRAY_BUFFER, vboOffset);
     glBufferData(GL_ARRAY_BUFFER, instances_num * 16 * sizeof(GL_FLOAT), cloudcube_offset, GL_STREAM_DRAW);
-
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(0)); /*GL_CHECK_ERRORS;*/
-    glEnableVertexAttribArray(3); /*GL_CHECK_ERRORS;*/
-
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(sizeof(float4)));
-    glEnableVertexAttribArray(4);
-
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(2 * sizeof(float4)));
-    glEnableVertexAttribArray(5);
-
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(3 * sizeof(float4)));
-    glEnableVertexAttribArray(6);
-
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-    glVertexAttribDivisor(6, 1);
-    
 }
 
 

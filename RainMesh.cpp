@@ -1,129 +1,54 @@
 #include "RainMesh.h"
 
-RainMesh* CreateRaindropMesh() {
+RainMesh* CreateRaindropMesh() 
+{
     vector<float> pos {
-        0,        0,   0, 1,
-        0.015, -0.4,   0, 1,
-       -0.015, -0.4,   0, 1
-    };
-
-    vector<float> norm {
-        0, 0, 1, 1,
-        0, 0, 1, 1,
-        0, 0, 1, 1,
-    };
-
-    vector<float> texc{
-        0, 1,
-        0, 0,
-        1, 0
+        0,    0,    0,
+        0.01, -0.3, 0, 
+       -0.01, -0.3, 0, 
     };
 
     vector<uint32_t> ind {
         0, 1, 2
     };
 
-    return new RainMesh(pos, norm, texc, ind, -1, "RainTriangle");
+    return new RainMesh(pos, ind, -1, "RainTriangle");
 }
 
-void DrawRain() {
-    static std::unique_ptr<RainMesh> mesh(CreateRaindropMesh());
-
-    mesh->Draw();
-}
-
-
-static void reset_particle(int index)
+void InitRaindrop(int i)
 {
-    raindrops[index].velocity =  0.0;
-    raindrops[index].gravity  = -9.8;
-    raindrops[index].position = float3(
-        -100.0 + (rand() % 200),
-        40.0 + (rand() % 150),
-        -100.0 + (rand() % 200)
-    );
+    raindrops_position[i].x = -150.0 + (rand() % 300);
+    raindrops_position[i].y = 30.0 + (rand() % 100);
+    raindrops_position[i].z = -150.0 + (rand() % 300);
 
-    raindrops[index].rotate = rand() % 360;
-
-    // calculate offset matrix
-    // const float matrix[16] = {
-    //     1, 0, 0, 0,
-    //     0, 1, 0, 0,
-    //     0, 0, 1, 0,
-    //     0, 0, 0, 1
-    // };
-
-    // raindrops_offset[index] = float4x4(matrix);
-
-    raindrops_offset[index] = mul(rotate_Y_4x4(raindrops[index].rotate),
-                                  transpose(translate4x4(raindrops[index].position)));
+    raindrops_offset[i] = transpose(translate4x4(raindrops_position[i]));
 }
 
-static void init_rain_particles()
+void RainMesh::UpdateRain(float deltaTime)
 {
     for (int i = 0; i < MAX_RAINDROPS; ++i) {
-        reset_particle(i);
-    }
-}
-
-
-void RainMesh::update_particles(float deltaTime)
-{
-    for (int i = 0; i < MAX_RAINDROPS; ++i) {
-        float v_0 = raindrops[i].velocity;
-        float a   = raindrops[i].gravity;
-
-        float temp = a * deltaTime;
-        float shift = deltaTime * (v_0 + temp / 2.0);
-        raindrops[i].position.y += shift;
-        // std::cout << "for " << i << "position: " << raindrops[i].position.y << std::endl;
-        raindrops[i].velocity = v_0 + temp;
-
-
-        raindrops[i].position.x -= 10.0 * deltaTime;
-        if (raindrops[i].position.y <= -10 || raindrops[i].position.x <= -150.0) {
-            reset_particle(i);
+        raindrops_position[i].y -= 100.0 * deltaTime;
+        raindrops_position[i].x -= 10.0 * deltaTime;
+        if (raindrops_position[i].y <= -10 || raindrops_position[i].x <= -130.0) {
+            InitRaindrop(i);
         } else {
-            raindrops_offset[i] = mul(rotate_Y_4x4(raindrops[i].rotate),
-                                      transpose(translate4x4(raindrops[i].position)));
+            raindrops_offset[i] = transpose(translate4x4(raindrops_position[i]));
         }
     }
 
-    // just for tests
-    // ============= RAINDROPS ================
     glBindBuffer(GL_ARRAY_BUFFER, vboOffset); GL_CHECK_ERRORS;
     glBufferData(GL_ARRAY_BUFFER, MAX_RAINDROPS * 16 * sizeof(GL_FLOAT), raindrops_offset, GL_STREAM_DRAW); GL_CHECK_ERRORS;
-    /*
-    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(0)); GL_CHECK_ERRORS;
-    glEnableVertexAttribArray(3); GL_CHECK_ERRORS;
-
-    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(sizeof(float4)));
-    glEnableVertexAttribArray(4);
-
-    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(2 * sizeof(float4)));
-    glEnableVertexAttribArray(5);
-
-    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(3 * sizeof(float4)));
-    glEnableVertexAttribArray(6);
-
-    glVertexAttribDivisor(3, 1);
-    glVertexAttribDivisor(4, 1);
-    glVertexAttribDivisor(5, 1);
-    glVertexAttribDivisor(6, 1);
-    */
-    // ========================================
 }
 
 
-RainMesh::RainMesh(const vector<float>    &positions,
-           const vector<float>    &normals  ,
-           const vector<float>    &texcoords,
-           const vector<uint32_t> &indices  ,
-           size_t mat_id,
-           string n) {
-    // RAINDROPS
-    init_rain_particles(); GL_CHECK_ERRORS;
-
+RainMesh::RainMesh(const vector<float> &positions,
+            const vector<uint32_t> &indices,
+            size_t mat_id,
+            string n) 
+{
+    for (int i = 0; i < MAX_RAINDROPS; ++i) {
+        InitRaindrop(i);
+    }
 
     name = n;
 
@@ -142,25 +67,12 @@ RainMesh::RainMesh(const vector<float>    &positions,
         //передаем в шейдерную программу атрибут координат вершин
         glBindBuffer(GL_ARRAY_BUFFER, vboVertices); GL_CHECK_ERRORS;
         glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(GL_FLOAT), positions.data(), GL_STATIC_DRAW); GL_CHECK_ERRORS;
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
         glEnableVertexAttribArray(0); GL_CHECK_ERRORS;
 
-        //передаем в шейдерную программу атрибут нормалей
-        glBindBuffer(GL_ARRAY_BUFFER, vboNormals); GL_CHECK_ERRORS;
-        glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GL_FLOAT), normals.data(), GL_STATIC_DRAW); GL_CHECK_ERRORS;
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
-        glEnableVertexAttribArray(1); GL_CHECK_ERRORS;
-
-        //передаем в шейдерную программу атрибут текстурных координат
-        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords); GL_CHECK_ERRORS;
-        glBufferData(GL_ARRAY_BUFFER, texcoords.size() * sizeof(GL_FLOAT), texcoords.data(), GL_STATIC_DRAW); GL_CHECK_ERRORS;
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), (GLvoid*)0); GL_CHECK_ERRORS;
-        glEnableVertexAttribArray(2); GL_CHECK_ERRORS;
-
-        // ============= RAINDROPS ================
         glBindBuffer(GL_ARRAY_BUFFER, vboOffset);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(raindrops_offset), raindrops_offset, GL_STREAM_DRAW);
-
+        glBufferData(GL_ARRAY_BUFFER, MAX_RAINDROPS * 16 * sizeof(GL_FLOAT), raindrops_offset, GL_STREAM_DRAW);
+        
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float4), (void*)(0)); GL_CHECK_ERRORS;
         glEnableVertexAttribArray(3); GL_CHECK_ERRORS;
 
@@ -177,7 +89,6 @@ RainMesh::RainMesh(const vector<float>    &positions,
         glVertexAttribDivisor(4, 1);
         glVertexAttribDivisor(5, 1);
         glVertexAttribDivisor(6, 1);
-        // ========================================
 
         //передаем в шейдерную программу индексы
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices); GL_CHECK_ERRORS;
@@ -190,22 +101,26 @@ RainMesh::RainMesh(const vector<float>    &positions,
     material_id = mat_id;
 }
 
-string RainMesh::GetName() {
+string RainMesh::GetName() 
+{
     return name;
 }
 
-void RainMesh::Draw() {
+void RainMesh::Draw() 
+{
     glBindVertexArray(vao); GL_CHECK_ERRORS;
     glDrawElements(GL_TRIANGLES, ind_num, GL_UNSIGNED_INT, nullptr); GL_CHECK_ERRORS;
     glBindVertexArray(0); GL_CHECK_ERRORS;
 }
 
-void RainMesh::DrawInstanced(GLsizei prim_count) {
+void RainMesh::DrawInstanced(GLsizei prim_count) 
+{
     glBindVertexArray(vao); GL_CHECK_ERRORS;
     glDrawElementsInstanced(GL_TRIANGLES, ind_num, GL_UNSIGNED_INT, nullptr, prim_count); GL_CHECK_ERRORS;
     glBindVertexArray(0); GL_CHECK_ERRORS;
 }
 
-RainMesh::~RainMesh() {
+RainMesh::~RainMesh() 
+{
     glDeleteVertexArrays(1, &vao);
 }
